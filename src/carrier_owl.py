@@ -2,6 +2,7 @@ import argparse
 import datetime
 import os
 import time
+from typing import Tuple
 import urllib.parse
 import warnings
 from dataclasses import dataclass
@@ -39,7 +40,7 @@ def get_config() -> dict:
     return config
 
 
-def get_date_range() -> (datetime.datetime, datetime.datetime):
+def get_date_range() -> Tuple[datetime.datetime, datetime.datetime]:
     today = datetime.datetime.today()
     date_from = today - datetime.timedelta(days=2)
     date_to = today - datetime.timedelta(days=2)
@@ -52,7 +53,7 @@ def get_date_range() -> (datetime.datetime, datetime.datetime):
     return date_from, date_to
 
 
-def calc_score(abst: str, keywords: dict) -> (float, list):
+def calc_score(abst: str, keywords: dict) -> Tuple[float, list]:
     abst = abst.lower().replace('-', ' ')
     sum_score = 0.0
     hit_kwd_list = []
@@ -114,7 +115,7 @@ def search_keyword(articles: list, keywords: dict, config: dict) -> list:
     max_posts = int(config.get('max_posts', '-1'))  # optional
     score_threshold = float(config.get('score_threshold', '0'))  # optional
 
-    def convert(article: FeedParserDict) -> (FeedParserDict, float, list):
+    def convert(article: FeedParserDict) -> Tuple[FeedParserDict, float, list]:
         score, words = calc_score(article['summary'], keywords)
         return article, words, score
 
@@ -122,7 +123,7 @@ def search_keyword(articles: list, keywords: dict, config: dict) -> list:
     filtered = filter(lambda x: x[2] >= score_threshold, converted)
     raw_results = sorted(filtered, key=lambda x: x[2], reverse=True)
 
-    def raw2result(raw_result: (FeedParserDict, float, list)):
+    def raw2result(raw_result: Tuple[FeedParserDict, float, list]):
         article, words, score = raw_result
         title = article['title'].replace('/', '／').replace('$', '').replace('\n', ' ')
         title_trans = get_translated_text(lang, 'en', title).replace('／', '/')
