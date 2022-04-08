@@ -18,7 +18,7 @@ max_posts: 8
 
 # メッセージテンプレート
 template: |
-        *${title}*
+        *${title_trans}*
         *Authors*: ${authors}
         *Keywords*: ${words}
         *Score*: ${score}
