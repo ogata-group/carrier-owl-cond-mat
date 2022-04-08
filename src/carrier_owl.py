@@ -120,7 +120,7 @@ def search_keyword(articles: list, keywords: dict, config: dict) -> list:
         return article, words, score
 
     converted = map(convert, articles)
-    filtered = filter(lambda x: x[2] >= score_threshold, converted)
+    filtered = filter(lambda x: x[2] != 0 and x[2] >= score_threshold, converted)
     raw_results = sorted(filtered, key=lambda x: x[2], reverse=True)
 
     def raw2result(raw_result: Tuple[FeedParserDict, float, list]):
