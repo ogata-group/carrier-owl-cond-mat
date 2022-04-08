@@ -110,9 +110,9 @@ def get_translated_text(from_lang: str, to_lang: str, from_text: str) -> str:
 
 
 def search_keyword(articles: list, keywords: dict, config: dict) -> list:
-    score_threshold = float(config.get('score_threshold', '0'))  # optional
-    max_posts = int(config.get('max_posts', '-1'))  # optional
     lang = config.get('lang', 'ja')  # optional
+    max_posts = int(config.get('max_posts', '-1'))  # optional
+    score_threshold = float(config.get('score_threshold', '0'))  # optional
     raw_results = []
 
     for article in articles:
