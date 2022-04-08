@@ -113,19 +113,16 @@ def search_keyword(articles: list, keywords: dict, config: dict) -> list:
     lang = config.get('lang', 'ja')  # optional
     max_posts = int(config.get('max_posts', '-1'))  # optional
     score_threshold = float(config.get('score_threshold', '0'))  # optional
-    raw_results = []
 
-    for article in articles:
+    def convert(article: FeedParserDict) -> (FeedParserDict, float, list):
         score, words = calc_score(article['summary'], keywords)
-        if (score != 0) and (score >= score_threshold):
-            raw_result = (article, words, score)
-            raw_results.append(raw_result)
+        return article, words, score
 
-    # descending
-    raw_results.sort(reverse=True, key=lambda x: x[2])
-    results = []
+    converted = map(convert, articles)
+    filtered = filter(lambda x: x[2] >= score_threshold, converted)
+    raw_results = sorted(filtered, key=lambda x: x[2], reverse=True)
 
-    for raw_result in raw_results[:max_posts]:
+    def raw2result(raw_result: (FeedParserDict, float, list)):
         article, words, score = raw_result
         title = article['title'].replace('/', '／').replace('$', '').replace('\n', ' ')
         title_trans = get_translated_text(lang, 'en', title).replace('／', '/')
@@ -133,10 +130,10 @@ def search_keyword(articles: list, keywords: dict, config: dict) -> list:
         summary_trans = get_translated_text(lang, 'en', summary).replace('／', '/')
         # summary_trans = textwrap.wrap(summary_trans, 40)  # 40行で改行
         # summary_trans = '\n'.join(summary_trans)
-        result = Result(article=article, title_trans=title_trans,
-                        summary_trans=summary_trans, words=words, score=score)
-        results.append(result)
-    return results
+        return Result(article=article, title_trans=title_trans,
+                      summary_trans=summary_trans, words=words, score=score)
+
+    return [raw2result(r) for r in raw_results[:max_posts]]
 
 
 def send2app(text: str, slack_id: str, line_token: str) -> None:
