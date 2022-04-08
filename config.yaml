@@ -1,11 +1,28 @@
+# 翻訳先の言語
+lang: ja
+
 # arxivの学問領域の指定
-subject: 'cat:cs.*'
+subject: cat:cond-mat.*
 
 # 検索キーワード
 keywords:
-        kaggle: 3
-        resnet: 3
-        anomaly detection: 1
+        Berry phase: 1
+        topological insulator: 1
+        Hall effect: 0.5
 
 # 通知の閾値
 score_threshold: 0
+
+# 1回の最大通知数
+max_posts: 8
+
+# メッセージテンプレート
+template: |
+        *${title_trans}*
+        *Authors*: ${authors}
+        *Keywords*: ${words}
+        *Score*: ${score}
+        *URL*: ${arxiv_url}
+        *Abstract*:
+        　${summary_trans}
+        ￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣

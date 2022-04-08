@@ -1,3 +1,5 @@
+> **NOTE**: 本レポジトリは [fkubota/Carrier-Owl](https://github.com/fkubota/Carrier-Owl) のフォークです。フォーク元のライセンスである [MIT License](https://opensource.org/licenses/mit-license.php) に従い、本レポジトリを再配布します。
+
  <img src='./data/images/header.png' width='1000' text-align='center'>
 
 # Carrier Owl  
