@@ -6,9 +6,12 @@ subject: cat:cond-mat.*
 
 # 検索キーワード
 keywords:
-        Berry phase: 1
-        topological insulator: 1
-        Hall effect: 0.5
+        Berry: 1
+        graphene: 1
+        Hall effect: 1
+        heterostructure: 1
+        topological : 1
+        van der Waals: 1
 
 # 通知の閾値
 score_threshold: 0
