@@ -1,28 +1,47 @@
 # 翻訳先の言語
-lang: ja
+# lang: ja
 
 # arxivの学問領域の指定
 subject: cat:cond-mat.*
 
 # 検索キーワード
 keywords:
-        Berry phase: 1
+        chirality-induced spin selectivity: 3
+        spin ice: 3
+        variable-range hopping: 3
+        skyrmion: 2
+        anomalous Hall effect: 1
+        Berry: 1
+        bilayer graphene: 1
+        Floquet: 1
+        magnon: 1
+        Nernst effect: 1
+        nodal line: 1
+        Seebeck: 1
+        spin Hall effect: 1
+        thermoelectric: 1
         topological insulator: 1
-        Hall effect: 0.5
+        Weyl semimetal: 1
+        chiral: 0.5
+        heterostructure: 0.5
+        impurity: 0.5
+        nonreciprocal: 0.5
+        phonon: 0.5
+        rectification: 0.5
+        van der Waals: 0.5
 
 # 通知の閾値
-score_threshold: 0
+score_threshold: 1
 
 # 1回の最大通知数
 max_posts: 8
 
 # メッセージテンプレート
 template: |
-        *${title_trans}*
-        *Authors*: ${authors}
-        *Keywords*: ${words}
-        *Score*: ${score}
-        *URL*: ${arxiv_url}
-        *Abstract*:
+        <${arxiv_url}|*${title_trans}*>
+        👤 *Authors*: ${authors}
+        🔑 *Keywords*: ${words}
+        ⚽ *Score*: ${score}
+        📝 *Abstract*:
         　${summary_trans}
         ￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣
