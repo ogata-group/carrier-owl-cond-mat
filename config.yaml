@@ -1,5 +1,5 @@
 # 翻訳先の言語
-lang: ja
+# lang: ja
 
 # arxivの学問領域の指定
 subject: cat:cond-mat.*
@@ -14,18 +14,17 @@ keywords:
         van der Waals: 1
 
 # 通知の閾値
-score_threshold: 0
+score_threshold: 1
 
 # 1回の最大通知数
 max_posts: 8
 
 # メッセージテンプレート
 template: |
-        *${title_trans}*
-        *Authors*: ${authors}
-        *Keywords*: ${words}
-        *Score*: ${score}
-        *URL*: ${arxiv_url}
-        *Abstract*:
+        <${arxiv_url}|*${title_trans}*>
+        👤 *Authors*: ${authors}
+        🔑 *Keywords*: ${words}
+        ⚽ *Score*: ${score}
+        📝 *Abstract*:
         　${summary_trans}
         ￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣
