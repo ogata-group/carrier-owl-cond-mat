@@ -15,8 +15,8 @@ import yaml
 from bs4 import BeautifulSoup
 from feedparser import FeedParserDict
 from selenium import webdriver
-from selenium.webdriver.chrome.options import Options
-from webdriver_manager.chrome import ChromeDriverManager
+from selenium.webdriver.firefox.options import Options
+from webdriver_manager.firefox import GeckoDriverManager
 
 # setting
 warnings.filterwarnings('ignore')
@@ -73,7 +73,7 @@ def get_text_from_page_source(html: str) -> str:
     return text
 
 
-def get_translated_text(from_lang: str, to_lang: str, from_text: str) -> str:
+def get_translated_text(driver, from_lang: str, to_lang: str, from_text: str) -> str:
     '''
     https://qiita.com/fujino-fpu/items/e94d4ff9e7a5784b2987
     '''
@@ -84,15 +84,8 @@ def get_translated_text(from_lang: str, to_lang: str, from_text: str) -> str:
     from_text = urllib.parse.quote(from_text)
 
     # url作成
-    url = 'https://www.deepl.com/translator#' \
-        + from_lang + '/' + to_lang + '/' + from_text
+    url = 'https://www.deepl.com/translator#' + from_lang + '/' + to_lang + '/' + from_text
 
-    # ヘッドレスモードでブラウザを起動
-    options = Options()
-    options.add_argument('--headless')
-
-    # ブラウザーを起動
-    driver = webdriver.Chrome(ChromeDriverManager().install(), options=options)
     driver.get(url)
     driver.implicitly_wait(10)  # 見つからないときは、10秒まで待つ
 
@@ -105,8 +98,6 @@ def get_translated_text(from_lang: str, to_lang: str, from_text: str) -> str:
         if to_text:
             break
 
-    # ブラウザ停止
-    driver.quit()
     return to_text
 
 
@@ -121,20 +112,29 @@ def search_keyword(articles: list, keywords: dict, config: dict) -> list:
 
     converted = map(convert, articles)
     filtered = filter(lambda x: x[2] != 0 and x[2] >= score_threshold, converted)
-    raw_results = sorted(filtered, key=lambda x: x[2], reverse=True)
+    raw = sorted(filtered, key=lambda x: x[2], reverse=True)
+
+    # ヘッドレスモードでブラウザを起動
+    options = Options()
+    options.add_argument('--headless')
+    # ブラウザーを起動
+    driver = webdriver.Firefox(executable_path=GeckoDriverManager().install(), options=options)
 
     def raw2result(raw_result: Tuple[FeedParserDict, float, list]):
         article, words, score = raw_result
         title = article['title'].replace('/', '／').replace('$', '').replace('\n', ' ')
-        title_trans = get_translated_text(lang, 'en', title).replace('／', '/')
+        title_trans = get_translated_text(driver, lang, 'en', title).replace('／', '/')
         summary = article['summary'].replace('/', '／').replace('$', '').replace('\n', ' ')
-        summary_trans = get_translated_text(lang, 'en', summary).replace('／', '/')
+        summary_trans = get_translated_text(driver, lang, 'en', summary).replace('／', '/')
         # summary_trans = textwrap.wrap(summary_trans, 40)  # 40行で改行
         # summary_trans = '\n'.join(summary_trans)
         return Result(article=article, title_trans=title_trans,
                       summary_trans=summary_trans, words=words, score=score)
 
-    return [raw2result(r) for r in raw_results[:max_posts]]
+    result = map(raw2result, raw[:max_posts])
+    # ブラウザ停止
+    driver.quit()
+    return list(result)
 
 
 def send2app(text: str, slack_id: str, line_token: str) -> None:
