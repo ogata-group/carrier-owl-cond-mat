@@ -131,10 +131,10 @@ def search_keyword(articles: list, keywords: dict, config: dict) -> list:
         return Result(article=article, title_trans=title_trans,
                       summary_trans=summary_trans, words=words, score=score)
 
-    result = map(raw2result, raw[:max_posts])
+    result = list(map(raw2result, raw[:max_posts]))
     # ブラウザ停止
     driver.quit()
-    return list(result)
+    return result
 
 
 def send2app(text: str, slack_id: str, line_token: str) -> None:
