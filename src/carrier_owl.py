@@ -233,9 +233,9 @@ def main():
         f"submittedDate:"
         f"[{date_from_str}000000 TO {date_to_str}235959]"
     )
-    articles = arxiv.Search(
-        query=arxiv_query, max_results=1000, sort_by=arxiv.SortCriterion.SubmittedDate
-    ).results()
+    articles = arxiv.query(
+        query=arxiv_query, max_results=1000, sort_by="submittedDate", iterative=False
+    )
 
     results = search_keyword(articles, keywords, config)
 
