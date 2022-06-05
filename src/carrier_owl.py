@@ -73,7 +73,9 @@ def get_text_from_page_source(html: str) -> str:
     return text
 
 
-def get_translated_text(driver, from_lang: str, to_lang: str, from_text: str) -> str:
+def get_translated_text(
+    driver: webdriver.Firefox, from_lang: str, to_lang: str, from_text: str
+) -> str:
     """
     https://qiita.com/fujino-fpu/items/e94d4ff9e7a5784b2987
     """
@@ -113,7 +115,7 @@ def search_keyword(articles: list, keywords: dict, config: dict) -> list:
     max_posts = int(config.get("max_posts", "-1"))  # optional
     score_threshold = float(config.get("score_threshold", "0"))  # optional
 
-    def convert(article: FeedParserDict) -> Tuple[FeedParserDict, float, list]:
+    def convert(article: FeedParserDict) -> Tuple[FeedParserDict, list, float]:
         score, words = calc_score(article["summary"], keywords)
         return article, words, score
 
@@ -129,7 +131,7 @@ def search_keyword(articles: list, keywords: dict, config: dict) -> list:
         executable_path=GeckoDriverManager().install(), options=options
     )
 
-    def raw2result(raw_result: Tuple[FeedParserDict, float, list]):
+    def raw2result(raw_result: Tuple[FeedParserDict, list, float]) -> Result:
         article, words, score = raw_result
         title = article["title"].replace("/", "／").replace("$", "").replace("\n", " ")
         title_trans = get_translated_text(driver, lang, "en", title).replace("／", "/")
@@ -201,7 +203,7 @@ def notify(results: list, template: str, slack_id: str, line_token: str) -> None
         send2app(text, slack_id, line_token)
 
 
-def main():
+def main() -> None:
     # debug用
     parser = argparse.ArgumentParser()
     parser.add_argument("--slack_id", default=None)
@@ -234,7 +236,10 @@ def main():
         f"[{date_from_str}000000 TO {date_to_str}235959]"
     )
     articles = arxiv.query(
-        query=arxiv_query, max_results=1000, sort_by="submittedDate", iterative=False
+        query=arxiv_query,
+        max_results=1000,
+        sort_by="submittedDate",
+        iterative=False,
     )
 
     results = search_keyword(articles, keywords, config)
