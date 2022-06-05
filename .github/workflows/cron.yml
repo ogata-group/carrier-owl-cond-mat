@@ -5,7 +5,7 @@ on:
     # github actions のデフォルトの time zone が UTC なので、日本時間 - 9時間 した値を書く
     - cron: 0 0 * * 1,2,3,4,5
   workflow_dispatch:
-  
+
   push:
     branches:
       - test-send-to-slack
@@ -26,7 +26,7 @@ jobs:
           poetry-version: 1.1.2
 
       - name: install dependencies
-        run: poetry install
+        run: poetry install --no-dev
 
       - name: Run owl
         run:
@@ -34,5 +34,3 @@ jobs:
         env:
           SLACK_ID: ${{ secrets.SLACK_ID }}
           LINE_TOKEN: ${{ secrets.LINE_TOKEN }}
-
-
