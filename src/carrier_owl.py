@@ -42,8 +42,8 @@ def get_config() -> dict:
 
 def get_date_range() -> Tuple[datetime.datetime, datetime.datetime]:
     today = datetime.datetime.today()
-    date_from = today - datetime.timedelta(days=7)
-    date_to = today - datetime.timedelta(days=7)
+    date_from = today - datetime.timedelta(days=2)
+    date_to = today - datetime.timedelta(days=2)
     if today.weekday() == 0:  # 月曜日の場合
         date_from = today - datetime.timedelta(days=4)  # 木曜日
         date_to = date_from
