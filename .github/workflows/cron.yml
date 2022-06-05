@@ -5,28 +5,27 @@ on:
     # github actions のデフォルトの time zone が UTC なので、日本時間 - 9時間 した値を書く
     - cron: 0 0 * * 1,2,3,4,5
   workflow_dispatch:
-  
   push:
     branches:
       - test-send-to-slack
 
 jobs:
   ci:
+    runs-on: ubuntu-20.04
     timeout-minutes: 10
-    runs-on: ubuntu-18.04
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-python@v2
         with:
-          python-version: 3.8
+          python-version: 3.9
 
       - name: Run image
-        uses: abatilo/actions-poetry@v2.0.0
+        uses: abatilo/actions-poetry@v2.1.3
         with:
-          poetry-version: 1.1.2
+          poetry-version: 1.1.13
 
       - name: install dependencies
-        run: poetry install
+        run: poetry install --no-dev
 
       - name: Run owl
         run:
@@ -34,5 +33,3 @@ jobs:
         env:
           SLACK_ID: ${{ secrets.SLACK_ID }}
           LINE_TOKEN: ${{ secrets.LINE_TOKEN }}
-
-
