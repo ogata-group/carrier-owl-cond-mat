@@ -194,7 +194,6 @@ def notify(
     results: list, template: str, slack_id: str, line_token: str, console: bool
 ) -> None:
     # 通知
-    star = "*" * 80
     for result in results:
         article = result.article
         article_str = {key: nice_str(article[key]) for key in article.keys()}
@@ -209,7 +208,6 @@ def notify(
             score=score,
             title_trans=title_trans,
             summary_trans=summary_trans,
-            star=star,
         )
 
         send2app(text, slack_id, line_token, console)
@@ -230,13 +228,12 @@ def main() -> None:
     subject = config["subject"]  # required
     keywords = config["keywords"]  # required
     default_template = (
-        "\n score: `${score}`"
-        "\n hit keywords: `${words}`"
-        "\n url: ${arxiv_url}"
-        "\n title:    ${title_trans}"
-        "\n abstract:"
-        "\n \t ${summary_trans}"
-        "\n ${star}"
+        "score: `${score}`\n"
+        "hit keywords: `${words}`\n"
+        "url: ${arxiv_url}\n"
+        "title:    ${title_trans}\n"
+        "abstract:\n"
+        "\t ${summary_trans}\n" + "*" * 80 + "\n"
     )
     template = config.get("template", default_template)  # optional
 
