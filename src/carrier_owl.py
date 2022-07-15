@@ -227,14 +227,17 @@ def main() -> None:
     config = get_config()
     subject = config["subject"]  # required
     keywords = config["keywords"]  # required
+    star = "*" * 80 + "\n"
+    default_front_template = star + "\t \t ${date}\tnum of articles = ${num}\n" + star
+    front_template = config.get("front_matter", default_front_template)  # optional
     default_template = (
         "score: `${score}`\n"
         "hit keywords: `${words}`\n"
         "url: ${arxiv_url}\n"
         "title:    ${title_trans}\n"
         "abstract:\n"
-        "\t ${summary_trans}\n" + "*" * 80 + "\n"
-    )
+        "\t ${summary_trans}\n"
+    ) + star
     template = config.get("template", default_template)  # optional
 
     date_from, date_to = get_date_range()
@@ -255,10 +258,10 @@ def main() -> None:
 
     results = search_keyword(articles, keywords, config)
 
-    narticles = len(results)
-    date_to_str = date_to.strftime("%Y-%m-%d")
-    text = f"{narticles} posts on {date_to_str}\n" + "─" * 23
-    send2app(text, slack_id, line_token, console)
+    front_dict = {"num": len(results), "date": date_to.strftime("%Y-%m-%d")}
+    front_matter = Template(front_template).substitute(front_dict)
+    if front_matter:
+        send2app(front_matter, slack_id, line_token, console)
     notify(results, template, slack_id, line_token, console)
 
 
