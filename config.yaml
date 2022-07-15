@@ -28,4 +28,4 @@ template: |
         *URL*: ${arxiv_url}
         *Abstract*:
         　${summary_trans}
-        ￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣
+        ──────────────────────────────
