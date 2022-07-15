@@ -15,6 +15,7 @@ jobs:
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@v2
+
       - uses: actions/setup-python@v2
         with:
           python-version: 3.9
@@ -24,12 +25,11 @@ jobs:
         with:
           poetry-version: 1.1.13
 
-      - name: install dependencies
+      - name: Install dependencies
         run: poetry install --no-dev
 
       - name: Run owl
-        run:
-          poetry run python src/carrier_owl.py
+        run: poetry run python src/carrier_owl.py
         env:
           SLACK_ID: ${{ secrets.SLACK_ID }}
           LINE_TOKEN: ${{ secrets.LINE_TOKEN }}

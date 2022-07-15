@@ -252,7 +252,7 @@ def main() -> None:
 
     narticles = len(results)
     date_to_str = date_to.strftime("%Y-%m-%d")
-    text = f"{narticles} posts on {date_to_str}\n" + "￣" * 23
+    text = f"{narticles} posts on {date_to_str}\n" + "─" * 23
     send2app(text, slack_id, line_token)
     notify(results, template, slack_id, line_token)
 
