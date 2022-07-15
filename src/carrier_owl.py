@@ -196,7 +196,7 @@ def notify(
     # 通知
     for result in results:
         article = result.article
-        article_str = {key: nice_str(article[key]) for key in article.keys()}
+        article_str = {key: nice_str(value) for key, value in article.items()}
         title_trans = result.title_trans
         summary_trans = result.summary_trans
         words = nice_str(result.words)
