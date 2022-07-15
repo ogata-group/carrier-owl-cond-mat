@@ -165,12 +165,12 @@ def search_keyword(articles: list, keywords: dict, config: dict) -> list:
 
 def send2app(text: str, slack_id: str, line_token: str, console: bool) -> None:
     # slack
-    if slack_id is not None:
+    if slack_id:
         slack = slackweb.Slack(url=slack_id)
         slack.notify(text=text)
 
     # line
-    if line_token is not None:
+    if line_token:
         line_notify_api = "https://notify-api.line.me/api/notify"
         headers = {"Authorization": f"Bearer {line_token}"}
         data = {"message": f"message: {text}"}
@@ -217,8 +217,8 @@ def main() -> None:
     # debug用
     parser = argparse.ArgumentParser()
     parser.add_argument("--config", default="../config.yaml")
-    parser.add_argument("--slack_id", default=None)
-    parser.add_argument("--line_token", default=None)
+    parser.add_argument("--slack_id", default="")
+    parser.add_argument("--line_token", default="")
     parser.add_argument("--console", action="store_true")
     args = parser.parse_args()
     config_path = args.config
