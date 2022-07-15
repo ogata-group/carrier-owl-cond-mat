@@ -238,8 +238,8 @@ def main() -> None:
         "url: ${arxiv_url}\n"
         "title:    ${title_trans}\n"
         "abstract:\n"
-        "\t ${summary_trans}\n"
-    ) + star
+        "\t ${summary_trans}\n" + star
+    )
     template = config.get("template", default_template)  # optional
 
     date_from, date_to = get_date_range()
