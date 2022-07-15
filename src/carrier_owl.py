@@ -31,10 +31,10 @@ class Result:
     score: float = 0.0
 
 
-def get_config() -> dict:
+def get_config(rel_path: str) -> dict:
     file_abs_path = os.path.abspath(__file__)
     file_dir = os.path.dirname(file_abs_path)
-    config_path = f"{file_dir}/../config.yaml"
+    config_path = f"{file_dir}/{rel_path}"
     with open(config_path, "r") as yml:
         config = yaml.safe_load(yml)
     return config
@@ -216,15 +216,17 @@ def notify(
 def main() -> None:
     # debug用
     parser = argparse.ArgumentParser()
+    parser.add_argument("--config", default="../config.yaml")
     parser.add_argument("--slack_id", default=None)
     parser.add_argument("--line_token", default=None)
     parser.add_argument("--console", action="store_true")
     args = parser.parse_args()
+    config_path = args.config
     slack_id = os.getenv("SLACK_ID", default=args.slack_id)
     line_token = os.getenv("LINE_TOKEN", default=args.line_token)
     console = args.console
 
-    config = get_config()
+    config = get_config(config_path)
     subject = config["subject"]  # required
     keywords = config["keywords"]  # required
     star = "*" * 80 + "\n"
@@ -236,8 +238,8 @@ def main() -> None:
         "url: ${arxiv_url}\n"
         "title:    ${title_trans}\n"
         "abstract:\n"
-        "\t ${summary_trans}\n"
-    ) + star
+        "\t ${summary_trans}\n" + star
+    )
     template = config.get("template", default_template)  # optional
 
     date_from, date_to = get_date_range()
