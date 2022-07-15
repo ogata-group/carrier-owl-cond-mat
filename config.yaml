@@ -19,6 +19,11 @@ score_threshold: 1
 # 1回の最大通知数
 max_posts: 9
 
+# Front matter template
+front_matter: |
+        ${num} posts on ${date}
+        ──────────────────────────────
+
 # メッセージテンプレート
 template: |
         *${title_trans}*
