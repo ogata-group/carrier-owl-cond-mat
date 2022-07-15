@@ -214,9 +214,11 @@ def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--slack_id", default=None)
     parser.add_argument("--line_token", default=None)
+    parser.add_argument("--console", action="store_true")
     args = parser.parse_args()
-    slack_id = os.getenv("SLACK_ID") or args.slack_id
-    line_token = os.getenv("LINE_TOKEN") or args.line_token
+    slack_id = os.getenv("SLACK_ID", default=args.slack_id)
+    line_token = os.getenv("LINE_TOKEN", default=args.line_token)
+    console = args.console
 
     config = get_config()
     subject = config["subject"]  # required
