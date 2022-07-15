@@ -163,7 +163,7 @@ def search_keyword(articles: list, keywords: dict, config: dict) -> list:
     return result
 
 
-def send2app(text: str, slack_id: str, line_token: str) -> None:
+def send2app(text: str, slack_id: str, line_token: str, console: bool) -> None:
     # slack
     if slack_id is not None:
         slack = slackweb.Slack(url=slack_id)
@@ -176,6 +176,10 @@ def send2app(text: str, slack_id: str, line_token: str) -> None:
         data = {"message": f"message: {text}"}
         requests.post(line_notify_api, headers=headers, data=data)
 
+    # console
+    if console:
+        print(text)
+
 
 def nice_str(obj) -> str:
     if isinstance(obj, list):
@@ -186,7 +190,9 @@ def nice_str(obj) -> str:
     return str(obj)
 
 
-def notify(results: list, template: str, slack_id: str, line_token: str) -> None:
+def notify(
+    results: list, template: str, slack_id: str, line_token: str, console: bool
+) -> None:
     # 通知
     star = "*" * 80
     for result in results:
@@ -206,7 +212,7 @@ def notify(results: list, template: str, slack_id: str, line_token: str) -> None
             star=star,
         )
 
-        send2app(text, slack_id, line_token)
+        send2app(text, slack_id, line_token, console)
 
 
 def main() -> None:
@@ -255,8 +261,8 @@ def main() -> None:
     narticles = len(results)
     date_to_str = date_to.strftime("%Y-%m-%d")
     text = f"{narticles} posts on {date_to_str}\n" + "─" * 23
-    send2app(text, slack_id, line_token)
-    notify(results, template, slack_id, line_token)
+    send2app(text, slack_id, line_token, console)
+    notify(results, template, slack_id, line_token, console)
 
 
 if __name__ == "__main__":
