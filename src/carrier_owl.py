@@ -66,10 +66,17 @@ def calc_score(abst: str, keywords: dict) -> Tuple[float, list]:
     return sum_score, hit_kwd_list
 
 
-def get_text_from_page_source(html: str) -> str:
+def get_text_from_page_source(driver: webdriver.Firefox) -> str:
+    html = driver.page_source
     soup = BeautifulSoup(html, features="lxml")
     target_elem = soup.find(class_="lmt__translations_as_text__text_btn")
     text = target_elem.text
+    return text
+
+
+def get_text_from_driver(driver: webdriver.Firefox) -> str:
+    elem = driver.find_element_by_class_name("lmt__translations_as_text__text_btn")
+    text = elem.get_attribute("innerHTML")
     return text
 
 
@@ -101,8 +108,7 @@ def get_translated_text(
     for i in range(30):
         # 指定時間待つ
         time.sleep(sleep_time)
-        html = driver.page_source
-        to_text = get_text_from_page_source(html)
+        to_text = get_text_from_driver(driver)
 
         if to_text:
             break
