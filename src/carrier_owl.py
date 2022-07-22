@@ -15,7 +15,7 @@ import slackweb
 import yaml
 from bs4 import BeautifulSoup
 from feedparser import FeedParserDict
-from selenium import webdriver
+from selenium.webdriver import Firefox
 from selenium.webdriver.firefox.options import Options
 from webdriver_manager.firefox import GeckoDriverManager
 
@@ -67,7 +67,7 @@ def calc_score(abst: str, keywords: dict) -> Tuple[float, list]:
     return sum_score, hit_kwd_list
 
 
-def get_text_from_page_source(driver: webdriver.Firefox) -> str:
+def get_text_from_page_source(driver: Firefox) -> str:
     html = driver.page_source
     soup = BeautifulSoup(html, features="lxml")
     target_elem = soup.find(class_="lmt__translations_as_text__text_btn")
@@ -75,14 +75,14 @@ def get_text_from_page_source(driver: webdriver.Firefox) -> str:
     return text
 
 
-def get_text_from_driver(driver: webdriver.Firefox) -> str:
+def get_text_from_driver(driver: Firefox) -> str:
     elem = driver.find_element_by_class_name("lmt__translations_as_text__text_btn")
     text = elem.get_attribute("innerHTML")
     return text
 
 
 def get_translated_text(
-    driver: webdriver.Firefox, from_lang: str, to_lang: str, from_text: str
+    driver: Firefox, from_lang: str, to_lang: str, from_text: str
 ) -> str:
     """
     https://qiita.com/fujino-fpu/items/e94d4ff9e7a5784b2987
@@ -130,9 +130,7 @@ def search_keyword(articles: list, keywords: dict, config: dict) -> list:
     options = Options()
     options.add_argument("--headless")
     # ブラウザーを起動
-    driver = webdriver.Firefox(
-        executable_path=GeckoDriverManager().install(), options=options
-    )
+    driver = Firefox(executable_path=GeckoDriverManager().install(), options=options)
 
     def raw2result(raw_result: Tuple[FeedParserDict, list, float]) -> Result:
         article, words, score = raw_result
