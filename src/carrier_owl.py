@@ -144,12 +144,12 @@ def search_keyword(articles: list, keywords: dict, config: dict) -> list:
     def translate(data: Tuple[FeedParserDict, float, list]) -> str:
         article, score, words = data
 
-        def convert(text: str):
+        def format_text(text: str):
             return text.replace("$", "").replace("\n", " ")
 
-        title = convert(article["title"])
+        title = format_text(article["title"])
         title_trans = get_translated_text(driver, lang, "en", title)
-        summary = convert(article["summary"])
+        summary = format_text(article["summary"])
         summary_trans = get_translated_text(driver, lang, "en", summary)
 
         article_str = {key: nice_str(value) for key, value in article.items()}
