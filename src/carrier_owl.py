@@ -15,21 +15,12 @@ import slackweb
 import yaml
 from bs4 import BeautifulSoup
 from feedparser import FeedParserDict
-from selenium import webdriver
+from selenium.webdriver import Firefox
 from selenium.webdriver.firefox.options import Options
 from webdriver_manager.firefox import GeckoDriverManager
 
 # setting
 warnings.filterwarnings("ignore")
-
-
-@dataclass
-class Result:
-    article: FeedParserDict
-    title_trans: str
-    summary_trans: str
-    words: list
-    score: float = 0.0
 
 
 def get_config(rel_path: str) -> dict:
@@ -57,17 +48,17 @@ def get_date_range() -> Tuple[datetime.datetime, datetime.datetime]:
 def calc_score(abst: str, keywords: dict) -> Tuple[float, list]:
     abst = abst.lower().replace("-", " ")
     sum_score = 0.0
-    hit_kwd_list = []
+    hit_keywords = []
 
     for word in keywords.keys():
         score = keywords[word]
         if word.lower().replace("-", " ") in abst:
             sum_score += score
-            hit_kwd_list.append(word)
-    return sum_score, hit_kwd_list
+            hit_keywords.append(word)
+    return sum_score, hit_keywords
 
 
-def get_text_from_page_source(driver: webdriver.Firefox) -> str:
+def get_text_from_page_source(driver: Firefox) -> str:
     html = driver.page_source
     soup = BeautifulSoup(html, features="lxml")
     target_elem = soup.find(class_="lmt__translations_as_text__text_btn")
@@ -75,21 +66,18 @@ def get_text_from_page_source(driver: webdriver.Firefox) -> str:
     return text
 
 
-def get_text_from_driver(driver: webdriver.Firefox) -> str:
+def get_text_from_driver(driver: Firefox) -> str:
     elem = driver.find_element_by_class_name("lmt__translations_as_text__text_btn")
     text = elem.get_attribute("innerHTML")
     return text
 
 
 def get_translated_text(
-    driver: webdriver.Firefox, from_lang: str, to_lang: str, from_text: str
+    driver: Firefox, from_lang: str, to_lang: str, from_text: str
 ) -> str:
     """
     https://qiita.com/fujino-fpu/items/e94d4ff9e7a5784b2987
     """
-
-    sleep_time = 1
-
     # urlencode
     from_text = re.sub(r"([/|\\])", r"\\\1", from_text)
     from_text = urllib.parse.quote(from_text)
@@ -108,61 +96,77 @@ def get_translated_text(
     driver.implicitly_wait(10)  # 見つからないときは、10秒まで待つ
 
     for i in range(30):
-        # 指定時間待つ
-        time.sleep(sleep_time)
+        time.sleep(1)  # 指定時間待つ
         to_text = get_text_from_driver(driver)
-
         if to_text:
             break
 
     return to_text
 
 
+def nice_str(obj) -> str:
+    if isinstance(obj, list):
+        if all(type(elem) is str for elem in obj):
+            return ", ".join(obj)
+    if type(obj) is str:
+        return obj.replace("\n", " ")
+    return str(obj)
+
+
 def search_keyword(articles: list, keywords: dict, config: dict) -> list:
     lang = config.get("lang", "ja")  # optional
     max_posts = int(config.get("max_posts", "-1"))  # optional
     score_threshold = float(config.get("score_threshold", "0"))  # optional
+    default_template = (
+        "score: `${score}`\n"
+        "hit keywords: `${words}`\n"
+        "url: ${arxiv_url}\n"
+        "title:    ${title_trans}\n"
+        "abstract:\n"
+        "\t ${summary_trans}\n"
+    )
+    template = config.get("template", default_template)  # optional
 
-    def convert(article: FeedParserDict) -> Tuple[FeedParserDict, list, float]:
+    def with_score(article: FeedParserDict) -> Tuple[FeedParserDict, float, list]:
         score, words = calc_score(article["summary"], keywords)
-        return article, words, score
+        return article, score, words
 
-    converted = map(convert, articles)
-    filtered = filter(lambda x: x[2] != 0 and x[2] >= score_threshold, converted)
-    raw = sorted(filtered, key=lambda x: x[2], reverse=True)
+    mapped = map(with_score, articles)
+    filtered = filter(lambda x: x[1] >= score_threshold and x[1] != 0, mapped)
+    sorted_articles = sorted(filtered, key=lambda x: x[1], reverse=True)
 
     # ヘッドレスモードでブラウザを起動
     options = Options()
     options.add_argument("--headless")
     # ブラウザーを起動
-    driver = webdriver.Firefox(
-        executable_path=GeckoDriverManager().install(), options=options
-    )
+    driver = Firefox(executable_path=GeckoDriverManager().install(), options=options)
 
-    def raw2result(raw_result: Tuple[FeedParserDict, list, float]) -> Result:
-        article, words, score = raw_result
+    def translate(data: Tuple[FeedParserDict, float, list]) -> str:
+        article, score, words = data
 
-        def convert(text: str):
+        def format_text(text: str):
             return text.replace("$", "").replace("\n", " ")
 
-        title = convert(article["title"])
+        title = format_text(article["title"])
         title_trans = get_translated_text(driver, lang, "en", title)
-        summary = convert(article["summary"])
+        summary = format_text(article["summary"])
         summary_trans = get_translated_text(driver, lang, "en", summary)
-        # summary_trans = textwrap.wrap(summary_trans, 40)  # 40行で改行
-        # summary_trans = '\n'.join(summary_trans)
-        return Result(
-            article=article,
+
+        article_str = {key: nice_str(value) for key, value in article.items()}
+        text = Template(template).substitute(
+            article_str,
+            score=score,
+            words=nice_str(words),
             title_trans=title_trans,
             summary_trans=summary_trans,
-            words=words,
-            score=score,
         )
+        return text
 
-    result = list(map(raw2result, raw[:max_posts]))
+    max_posts = len(sorted_articles) if max_posts == -1 else max_posts
+    results = list(map(translate, sorted_articles[:max_posts]))
     # ブラウザ停止
     driver.quit()
-    return result
+    return results
 
 
 def send2app(text: str, slack_id: str, line_token: str, console: bool) -> None:
@@ -183,38 +187,6 @@ def send2app(text: str, slack_id: str, line_token: str, console: bool) -> None:
         print(text)
 
 
-def nice_str(obj) -> str:
-    if isinstance(obj, list):
-        if all(type(elem) is str for elem in obj):
-            return ", ".join(obj)
-    if type(obj) is str:
-        return obj.replace("\n", " ")
-    return str(obj)
-
-
-def notify(
-    results: list, template: str, slack_id: str, line_token: str, console: bool
-) -> None:
-    # 通知
-    for result in results:
-        article = result.article
-        article_str = {key: nice_str(value) for key, value in article.items()}
-        title_trans = result.title_trans
-        summary_trans = result.summary_trans
-        words = nice_str(result.words)
-        score = result.score
-
-        text = Template(template).substitute(
-            article_str,
-            words=words,
-            score=score,
-            title_trans=title_trans,
-            summary_trans=summary_trans,
-        )
-
-        send2app(text, slack_id, line_token, console)
-
-
 def main() -> None:
     # debug用
     parser = argparse.ArgumentParser()
@@ -231,18 +203,6 @@ def main() -> None:
     config = get_config(config_path)
     subject = config["subject"]  # required
     keywords = config["keywords"]  # required
-    star = "*" * 80 + "\n"
-    default_front_template = star + "\t \t ${date}\tnum of articles = ${num}\n" + star
-    front_template = config.get("front_matter", default_front_template)  # optional
-    default_template = (
-        "score: `${score}`\n"
-        "hit keywords: `${words}`\n"
-        "url: ${arxiv_url}\n"
-        "title:    ${title_trans}\n"
-        "abstract:\n"
-        "\t ${summary_trans}\n" + star
-    )
-    template = config.get("template", default_template)  # optional
 
     date_from, date_to = get_date_range()
     date_from_str = date_from.strftime("%Y%m%d")
@@ -262,11 +222,14 @@ def main() -> None:
 
     results = search_keyword(articles, keywords, config)
 
+    default_front_template = "\t ${date}\t num of articles = ${num}\n"
+    front_template = config.get("front_matter", default_front_template)  # optional
     front_dict = {"num": len(results), "date": date_to.strftime("%Y-%m-%d")}
     front_matter = Template(front_template).substitute(front_dict)
     if front_matter:
         send2app(front_matter, slack_id, line_token, console)
-    notify(results, template, slack_id, line_token, console)
+    for text in results:
+        send2app(text, slack_id, line_token, console)
 
 
 if __name__ == "__main__":
