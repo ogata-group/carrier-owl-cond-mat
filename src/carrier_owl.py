@@ -1,6 +1,7 @@
 import argparse
 import datetime
 import os
+import re
 import time
 import urllib.parse
 import warnings
@@ -90,6 +91,7 @@ def get_translated_text(
     sleep_time = 1
 
     # urlencode
+    from_text = re.sub(r"([/|\\])", r"\\\1", from_text)
     from_text = urllib.parse.quote(from_text)
 
     # url作成
@@ -139,14 +141,14 @@ def search_keyword(articles: list, keywords: dict, config: dict) -> list:
 
     def raw2result(raw_result: Tuple[FeedParserDict, list, float]) -> Result:
         article, words, score = raw_result
-        title = article["title"].replace("/", "／").replace("$", "").replace("\n", " ")
-        title_trans = get_translated_text(driver, lang, "en", title).replace("／", "/")
-        summary = (
-            article["summary"].replace("/", "／").replace("$", "").replace("\n", " ")
-        )
-        summary_trans = get_translated_text(driver, lang, "en", summary).replace(
-            "／", "/"
-        )
+
+        def convert(text: str):
+            return text.replace("$", "").replace("\n", " ")
+
+        title = convert(article["title"])
+        title_trans = get_translated_text(driver, lang, "en", title)
+        summary = convert(article["summary"])
+        summary_trans = get_translated_text(driver, lang, "en", summary)
         # summary_trans = textwrap.wrap(summary_trans, 40)  # 40行で改行
         # summary_trans = '\n'.join(summary_trans)
         return Result(
