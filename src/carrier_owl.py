@@ -118,13 +118,13 @@ def search_keyword(articles: list, keywords: dict, config: dict) -> list:
     max_posts = int(config.get("max_posts", "-1"))  # optional
     score_threshold = float(config.get("score_threshold", "0"))  # optional
 
-    def convert(article: FeedParserDict) -> Tuple[FeedParserDict, list, float]:
+    def with_score(article: FeedParserDict) -> Tuple[FeedParserDict, float, list]:
         score, words = calc_score(article["summary"], keywords)
-        return article, words, score
+        return article, score, words
 
-    converted = map(convert, articles)
-    filtered = filter(lambda x: x[2] != 0 and x[2] >= score_threshold, converted)
-    raw = sorted(filtered, key=lambda x: x[2], reverse=True)
+    mapped = map(with_score, articles)
+    filtered = filter(lambda x: x[1] >= score_threshold and x[1] != 0, mapped)
+    raw = sorted(filtered, key=lambda x: x[1], reverse=True)
 
     # ヘッドレスモードでブラウザを起動
     options = Options()
@@ -132,8 +132,8 @@ def search_keyword(articles: list, keywords: dict, config: dict) -> list:
     # ブラウザーを起動
     driver = Firefox(executable_path=GeckoDriverManager().install(), options=options)
 
-    def raw2result(raw_result: Tuple[FeedParserDict, list, float]) -> Result:
-        article, words, score = raw_result
+    def raw2result(raw_result: Tuple[FeedParserDict, float, list]) -> Result:
+        article, score, words = raw_result
 
         def convert(text: str):
             return text.replace("$", "").replace("\n", " ")
