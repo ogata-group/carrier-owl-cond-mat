@@ -226,8 +226,7 @@ def main() -> None:
     config = get_config(config_path)
     subject = config["subject"]  # required
     keywords = config["keywords"]  # required
-    star = "*" * 80 + "\n"
-    default_front_template = star + "\t \t ${date}\tnum of articles = ${num}\n" + star
+    default_front_template = "\t \t ${date}\tnum of articles = ${num}\n"
     front_template = config.get("front_matter", default_front_template)  # optional
     default_template = (
         "score: `${score}`\n"
@@ -235,7 +234,7 @@ def main() -> None:
         "url: ${arxiv_url}\n"
         "title:    ${title_trans}\n"
         "abstract:\n"
-        "\t ${summary_trans}\n" + star
+        "\t ${summary_trans}\n"
     )
     template = config.get("template", default_template)  # optional
 
