@@ -87,9 +87,6 @@ def get_translated_text(
     """
     https://qiita.com/fujino-fpu/items/e94d4ff9e7a5784b2987
     """
-
-    sleep_time = 1
-
     # urlencode
     from_text = re.sub(r"([/|\\])", r"\\\1", from_text)
     from_text = urllib.parse.quote(from_text)
@@ -108,10 +105,8 @@ def get_translated_text(
     driver.implicitly_wait(10)  # 見つからないときは、10秒まで待つ
 
     for i in range(30):
-        # 指定時間待つ
-        time.sleep(sleep_time)
+        time.sleep(1)  # 指定時間待つ
         to_text = get_text_from_driver(driver)
-
         if to_text:
             break
 
