@@ -66,5 +66,4 @@ template: |
         　${summary_trans}
         ──────────────────────────────
 
-# flags: [console, nodollar]
-flags: [nodollar]
+# flags: [console, dollar]
