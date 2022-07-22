@@ -104,6 +104,15 @@ def get_translated_text(
     return to_text
 
 
+def nice_str(obj) -> str:
+    if isinstance(obj, list):
+        if all(type(elem) is str for elem in obj):
+            return ", ".join(obj)
+    if type(obj) is str:
+        return obj.replace("\n", " ")
+    return str(obj)
+
+
 def search_keyword(articles: list, keywords: dict, config: dict) -> list:
     lang = config.get("lang", "ja")  # optional
     max_posts = int(config.get("max_posts", "-1"))  # optional
@@ -176,15 +185,6 @@ def send2app(text: str, slack_id: str, line_token: str, console: bool) -> None:
     # console
     if console:
         print(text)
-
-
-def nice_str(obj) -> str:
-    if isinstance(obj, list):
-        if all(type(elem) is str for elem in obj):
-            return ", ".join(obj)
-    if type(obj) is str:
-        return obj.replace("\n", " ")
-    return str(obj)
 
 
 def main() -> None:
