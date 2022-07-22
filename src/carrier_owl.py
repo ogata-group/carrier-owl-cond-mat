@@ -57,14 +57,14 @@ def get_date_range() -> Tuple[datetime.datetime, datetime.datetime]:
 def calc_score(abst: str, keywords: dict) -> Tuple[float, list]:
     abst = abst.lower().replace("-", " ")
     sum_score = 0.0
-    hit_kwd_list = []
+    hit_keywords = []
 
     for word in keywords.keys():
         score = keywords[word]
         if word.lower().replace("-", " ") in abst:
             sum_score += score
-            hit_kwd_list.append(word)
-    return sum_score, hit_kwd_list
+            hit_keywords.append(word)
+    return sum_score, hit_keywords
 
 
 def get_text_from_page_source(driver: Firefox) -> str:
