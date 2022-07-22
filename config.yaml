@@ -34,3 +34,5 @@ template: |
         *Abstract*:
         　${summary_trans}
         ──────────────────────────────
+
+# flags: [console, nodollar]

@@ -126,6 +126,7 @@ def search_keyword(articles: list, keywords: dict, config: dict) -> list:
         "\t ${summary_trans}\n"
     )
     template = config.get("template", default_template)  # optional
+    nodollar = "nodollar" in config.get("flags", [])  # optional
 
     def with_score(article: FeedParserDict) -> Tuple[FeedParserDict, float, list]:
         score, words = calc_score(article["summary"], keywords)
@@ -145,7 +146,9 @@ def search_keyword(articles: list, keywords: dict, config: dict) -> list:
         article, score, words = data
 
         def format_text(text: str):
-            return text.replace("$", "").replace("\n", " ")
+            if nodollar:
+                text = text.replace("$", "")
+            return text.replace("\n", " ")
 
         title = format_text(article["title"])
         title_trans = get_translated_text(driver, lang, "en", title)
@@ -162,7 +165,8 @@ def search_keyword(articles: list, keywords: dict, config: dict) -> list:
         )
         return text
 
-    max_posts = len(sorted_articles) if max_posts == -1 else max_posts
+    if max_posts == -1:
+        max_posts = len(sorted_articles)
     results = list(map(translate, sorted_articles[:max_posts]))
     # ブラウザ停止
     driver.quit()
@@ -193,16 +197,15 @@ def main() -> None:
     parser.add_argument("--config", default="../config.yaml")
     parser.add_argument("--slack_id", default="")
     parser.add_argument("--line_token", default="")
-    parser.add_argument("--console", action="store_true")
     args = parser.parse_args()
     config_path = args.config
     slack_id = os.getenv("SLACK_ID", default=args.slack_id)
     line_token = os.getenv("LINE_TOKEN", default=args.line_token)
-    console = args.console
 
     config = get_config(config_path)
     subject = config["subject"]  # required
     keywords = config["keywords"]  # required
+    console = "console" in config.get("flags", [])  # optional
 
     date_from, date_to = get_date_range()
     date_from_str = date_from.strftime("%Y%m%d")
