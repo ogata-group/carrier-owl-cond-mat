@@ -117,6 +117,15 @@ def search_keyword(articles: list, keywords: dict, config: dict) -> list:
     lang = config.get("lang", "ja")  # optional
     max_posts = int(config.get("max_posts", "-1"))  # optional
     score_threshold = float(config.get("score_threshold", "0"))  # optional
+    default_template = (
+        "score: `${score}`\n"
+        "hit keywords: `${words}`\n"
+        "url: ${arxiv_url}\n"
+        "title:    ${title_trans}\n"
+        "abstract:\n"
+        "\t ${summary_trans}\n"
+    )
+    template = config.get("template", default_template)  # optional
 
     def with_score(article: FeedParserDict) -> Tuple[FeedParserDict, float, list]:
         score, words = calc_score(article["summary"], keywords)
@@ -124,7 +133,7 @@ def search_keyword(articles: list, keywords: dict, config: dict) -> list:
 
     mapped = map(with_score, articles)
     filtered = filter(lambda x: x[1] >= score_threshold and x[1] != 0, mapped)
-    raw = sorted(filtered, key=lambda x: x[1], reverse=True)
+    sorted_articles = sorted(filtered, key=lambda x: x[1], reverse=True)
 
     # ヘッドレスモードでブラウザを起動
     options = Options()
@@ -132,8 +141,8 @@ def search_keyword(articles: list, keywords: dict, config: dict) -> list:
     # ブラウザーを起動
     driver = Firefox(executable_path=GeckoDriverManager().install(), options=options)
 
-    def raw2result(raw_result: Tuple[FeedParserDict, float, list]) -> Result:
-        article, score, words = raw_result
+    def translate(data: Tuple[FeedParserDict, float, list]) -> str:
+        article, score, words = data
 
         def convert(text: str):
             return text.replace("$", "").replace("\n", " ")
@@ -142,20 +151,22 @@ def search_keyword(articles: list, keywords: dict, config: dict) -> list:
         title_trans = get_translated_text(driver, lang, "en", title)
         summary = convert(article["summary"])
         summary_trans = get_translated_text(driver, lang, "en", summary)
-        # summary_trans = textwrap.wrap(summary_trans, 40)  # 40行で改行
-        # summary_trans = '\n'.join(summary_trans)
-        return Result(
-            article=article,
+
+        article_str = {key: nice_str(value) for key, value in article.items()}
+        text = Template(template).substitute(
+            article_str,
+            score=score,
+            words=nice_str(words),
             title_trans=title_trans,
             summary_trans=summary_trans,
-            words=words,
-            score=score,
         )
+        return text
 
-    result = list(map(raw2result, raw[:max_posts]))
+    max_posts = len(sorted_articles) if max_posts == -1 else max_posts
+    results = list(map(translate, sorted_articles[:max_posts]))
     # ブラウザ停止
     driver.quit()
-    return result
+    return results
 
 
 def send2app(text: str, slack_id: str, line_token: str, console: bool) -> None:
@@ -225,16 +236,6 @@ def main() -> None:
     subject = config["subject"]  # required
     keywords = config["keywords"]  # required
 
-    default_template = (
-        "score: `${score}`\n"
-        "hit keywords: `${words}`\n"
-        "url: ${arxiv_url}\n"
-        "title:    ${title_trans}\n"
-        "abstract:\n"
-        "\t ${summary_trans}\n"
-    )
-    template = config.get("template", default_template)  # optional
-
     date_from, date_to = get_date_range()
     date_from_str = date_from.strftime("%Y%m%d")
     date_to_str = date_to.strftime("%Y%m%d")
@@ -259,7 +260,8 @@ def main() -> None:
     front_matter = Template(front_template).substitute(front_dict)
     if front_matter:
         send2app(front_matter, slack_id, line_token, console)
-    notify(results, template, slack_id, line_token, console)
+    for text in results:
+        send2app(text, slack_id, line_token, console)
 
 
 if __name__ == "__main__":
