@@ -226,8 +226,7 @@ def main() -> None:
     config = get_config(config_path)
     subject = config["subject"]  # required
     keywords = config["keywords"]  # required
-    default_front_template = "\t \t ${date}\tnum of articles = ${num}\n"
-    front_template = config.get("front_matter", default_front_template)  # optional
+
     default_template = (
         "score: `${score}`\n"
         "hit keywords: `${words}`\n"
@@ -256,6 +255,8 @@ def main() -> None:
 
     results = search_keyword(articles, keywords, config)
 
+    default_front_template = "\t ${date}\t num of articles = ${num}\n"
+    front_template = config.get("front_matter", default_front_template)  # optional
     front_dict = {"num": len(results), "date": date_to.strftime("%Y-%m-%d")}
     front_matter = Template(front_template).substitute(front_dict)
     if front_matter:
