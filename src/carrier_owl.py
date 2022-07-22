@@ -126,7 +126,7 @@ def search_keyword(articles: list, keywords: dict, config: dict) -> list:
         "\t ${summary_trans}\n"
     )
     template = config.get("template", default_template)  # optional
-    nodollar = "nodollar" in config.get("flags", [])  # optional
+    nodollar = "dollar" not in config.get("flags", [])  # optional
 
     def with_score(article: FeedParserDict) -> Tuple[FeedParserDict, float, list]:
         score, words = calc_score(article["summary"], keywords)
