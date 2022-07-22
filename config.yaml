@@ -67,3 +67,4 @@ template: |
         ──────────────────────────────
 
 # flags: [console, nodollar]
+flags: [nodollar]
