@@ -23,15 +23,6 @@ from webdriver_manager.firefox import GeckoDriverManager
 warnings.filterwarnings("ignore")
 
 
-@dataclass
-class Result:
-    article: FeedParserDict
-    title_trans: str
-    summary_trans: str
-    words: list
-    score: float = 0.0
-
-
 def get_config(rel_path: str) -> dict:
     file_abs_path = os.path.abspath(__file__)
     file_dir = os.path.dirname(file_abs_path)
@@ -194,29 +185,6 @@ def nice_str(obj) -> str:
     if type(obj) is str:
         return obj.replace("\n", " ")
     return str(obj)
-
-
-def notify(
-    results: list, template: str, slack_id: str, line_token: str, console: bool
-) -> None:
-    # 通知
-    for result in results:
-        article = result.article
-        article_str = {key: nice_str(value) for key, value in article.items()}
-        title_trans = result.title_trans
-        summary_trans = result.summary_trans
-        words = nice_str(result.words)
-        score = result.score
-
-        text = Template(template).substitute(
-            article_str,
-            words=words,
-            score=score,
-            title_trans=title_trans,
-            summary_trans=summary_trans,
-        )
-
-        send2app(text, slack_id, line_token, console)
 
 
 def main() -> None:
