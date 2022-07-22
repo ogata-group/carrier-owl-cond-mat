@@ -6,30 +6,44 @@ subject: cat:cond-mat.*
 
 # 検索キーワード
 keywords:
+        # Tier 1
         chirality-induced spin selectivity: 3
         spin ice: 3
         variable-range hopping: 3
-        anomalous Hall effect: 1
+        # Tier 2
         Berry: 1
+        Ettingshausen: 1
         Floquet: 1
-        magnon: 1
+        moiré: 1
         multi-valley: 1
-        Nernst effect: 1
+        multiferroic: 1
+        Nernst: 1
         nodal line: 1
+        Peltier: 1
+        photovoltaic: 1
         pyrochlore: 1
         Seebeck: 1
         shift current: 1
         skyrmion: 1
         spin Hall effect: 1
         thermoelectric: 1
+        topological crystalline insulator: 1
         topological insulator: 1
-        Weyl semimetal: 1
-        bilayer graphene: 0.5
+        valley Hall effect: 1
+        valleytronics: 1
+        # Tier 3
+        anomalous: 0.5
+        bilayer: 0.5
         chiral: 0.5
+        Dirac: 0.5
+        graphene: 0.5
+        Hall effect: 0.5
         heterostructure: 0.5
-        impurity: 0.5
+        magnon: 0.5
         phonon: 0.5
+        semimetal: 0.5
         van der Waals: 0.5
+        Weyl: 0.5
 
 # 通知の閾値
 score_threshold: 1
