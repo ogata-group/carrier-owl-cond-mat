@@ -25,25 +25,24 @@ keywords:
         Seebeck: 1
         shift current: 1
         skyrmion: 1
-        spin Hall effect: 1
         thermoelectric: 1
         topological crystalline insulator: 1
         topological insulator: 1
-        valley Hall effect: 1
+        valley Hall: 1
         valleytronics: 1
         # Tier 3
-        anomalous: 0.5
-        bilayer: 0.5
-        chiral: 0.5
-        Dirac: 0.5
-        graphene: 0.5
-        Hall effect: 0.5
-        heterostructure: 0.5
         magnon: 0.5
+        chiral: 0.5
         phonon: 0.5
-        semimetal: 0.5
+        bilayer: 0.5
+        graphene: 0.5
+        anomalous: 0.5
+        Hall effect: 0.5
         van der Waals: 0.5
+        heterostructure: 0.5
+        Dirac: 0.5
         Weyl: 0.5
+        semimetal: 0.5
 
 # 通知の閾値
 score_threshold: 1
