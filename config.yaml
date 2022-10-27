@@ -13,7 +13,6 @@ keywords:
         # Tier 2
         Berry: 1
         Ettingshausen: 1
-        Floquet: 1
         moiré: 1
         multi-valley: 1
         multiferroic: 1
@@ -31,6 +30,7 @@ keywords:
         valley Hall: 1
         valleytronics: 1
         # Tier 3
+        Floquet: 0.5
         magnon: 0.5
         chiral: 0.5
         phonon: 0.5
@@ -59,8 +59,7 @@ front_matter: |
 template: |
         <${arxiv_url}|*${title_trans}*>
         👤 *Authors*: ${authors}
-        🔑 *Keywords*: ${words}
-        ⚽ *Score*: ${score}
+        🔑 *Keywords*: ${words} (${score})
         📝 *Abstract*:
         　${summary_trans}
         ──────────────────────────────
