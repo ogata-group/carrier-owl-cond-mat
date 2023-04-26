@@ -13,23 +13,21 @@ keywords:
         # Tier 2
         Berry: 1
         Ettingshausen: 1
-        moiré: 1
         multi-valley: 1
-        multiferro: 1
         Nernst: 1
         nodal line: 1
         Peltier: 1
         photovoltaic: 1
-        pyrochlore: 1
         Seebeck: 1
         shift current: 1
-        skyrmion: 1
         thermoelectric: 1
         topological insulator: 1
         valley Hall: 1
         valleytronics: 1
         # Tier 3
         Floquet: 0.5
+        skyrmion: 0.5
+        multiferro: 0.5
         magnon: 0.5
         chiral: 0.5
         phonon: 0.5
@@ -47,7 +45,7 @@ keywords:
 score_threshold: 1
 
 # 1回の最大通知数
-max_posts: 9
+max_posts: 7
 
 # Front matter template
 front_matter: |
