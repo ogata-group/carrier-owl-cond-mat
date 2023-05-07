@@ -8,12 +8,12 @@ license = "MIT"
 [tool.poetry.dependencies]
 python = "^3.8"
 slackweb = "^1.0.5"
-lxml = "^4.9.0"
+lxml = "=4.9.0"
 PyYAML = "^6.0"
-beautifulsoup4 = "^4.11.1"
-selenium = "^3.141.0"
+beautifulsoup4 = "=4.11.1"
+selenium = "=3.141.0"
 webdriver-manager = "=3.3.0"
-arxiv = "^0.5.4"
+arxiv = "=0.5.4"
 
 [tool.poetry.dev-dependencies]
 flake8 = "^4.0.1"
